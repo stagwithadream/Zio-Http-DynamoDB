@@ -1,0 +1,8 @@
+[0m[[0m[33mwarn[0m] [0m[0m/Users/npnl/Desktop/Laharireddy/src/main/scala/example/repository/CustomerRepositoryLive.scala:65:7: method with a single empty parameter list overrides method getAllCustomers in trait CustomerRepository defined without a parameter list [quickfixable][0m
+[0m[[0m[33mwarn[0m] [0m[0m  def getAllCustomers():ZIO[DynamoDBExecutor, Throwable, Iterator[Customer]] = {[0m
+[0m[[0m[33mwarn[0m] [0m[0m      ^[0m
+[0m[[0m[33mwarn[0m] [0m[0mone warning found[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/npnl/Desktop/Laharireddy/src/main/scala/example/http/CustomerApiLive.scala:55:35: zio.ZIO[zio.dynamodb.DynamoDBExecutor,Throwable,Iterator[example.model.Customer]] does not take parameters[0m
+[0m[[0m[31merror[0m] [0m[0m      customerRepo.getAllCustomers()[0m
+[0m[[0m[31merror[0m] [0m[0m                                  ^[0m
+[0m[[0m[31merror[0m] [0m[0mone error found[0m

@@ -1,0 +1,84 @@
+package example.http
+
+import zio._
+import zio.http._
+
+// Assuming these are the correct imports for your program
+import your.package.for.DynamoDBExecutor
+import your.package.for.TestDynamoDBExecutor
+import your.package.for.Item
+import your.package.for.PrimaryKey
+
+case class CustomerApiLive() extends CustomerApi {
+
+  // Endpoints for individual functionalities
+  override def httpApp: Http[Any, Nothing, Request, Response] = Http.collect[Request] {
+    case Method.GET -> !! / "status" =>
+      Response.text("Server Running: CustomerApiLive Active")
+
+    case Method.GET -> !! / "name" / "myname" =>
+      Response.text("Banana")
+
+    // Endpoint to put items
+    case Method.POST -> !! / "putItem" / IntVar(id) / name =>
+      val action = (putItem("table1", Item("id" -> id, "name" -> name))).execute
+      val result = Runtime.default.unsafeRun(action)
+      Response.text(s"PutItem result: $result")
+
+    // Endpoint to delete items
+    case Method.DELETE -> !! / "deleteItem" / IntVar(id) =>
+      val action = deleteItem("table1", PrimaryKey("id" -> id)).execute
+      val result = Runtime.default.unsafeRun(action)
+      Response.text(s"DeleteItem result: $result")
+
+    // Endpoint to scan all items
+    case Method.GET -> !! / "scanAllItems" =>
+      val action = scanAllItem("table1").execute.flatMap(_.runCollect)
+      val items = Runtime.default.unsafeRun(action)
+      Response.text(s"Scan results: $items")
+  }
+}
+
+
+package example.http
+
+import zio._
+import zio.http._
+import zio.http.Response
+
+// Assuming these are the correct imports for your program
+import your.package.for.DynamoDBExecutor
+import your.package.for.TestDynamoDBExecutor
+import your.package.for.Item
+import your.package.for.PrimaryKey
+
+case class CustomerApiLive() extends CustomerApi {
+
+  // Endpoints for individual functionalities
+  override def httpApp: Http[Any, Throwable, Request, UResponse] =
+    Http.collectM[Request] { // Note the use of collectM instead of collect
+      case Method.GET -> !! / "status" =>
+        ZIO.succeed(Response.text("Server Running: CustomerApiLive Active"))
+
+      case Method.GET -> !! / "name" / "myname" =>
+        ZIO.succeed(Response.text("Banana"))
+
+      // Endpoint to put items
+      case Method.POST -> !! / "putItem" / IntVar(id) / name =>
+        for {
+          result <- putItem("table1", Item("id" -> id, "name" -> name)).execute
+        } yield Response.text(s"PutItem result: $result")
+
+      // Endpoint to delete items
+      case Method.DELETE -> !! / "deleteItem" / IntVar(id) =>
+        for {
+          result <- deleteItem("table1", PrimaryKey("id" -> id)).execute
+        } yield Response.text(s"DeleteItem result: $result")
+
+      // Endpoint to scan all items
+      case Method.GET -> !! / "scanAllItems" =>
+        for {
+          items <- scanAllItem("table1").execute.flatMap(_.runCollect)
+        } yield Response.text(s"Scan results: $items")
+    }
+}
